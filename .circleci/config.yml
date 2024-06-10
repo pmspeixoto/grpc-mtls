@@ -1,0 +1,52 @@
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/python:3.8
+
+jobs:
+  build:
+    executor: docker-executor
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.7
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t pedromspeixoto/grpc-mtls:${CIRCLE_TAG} .
+            # Tagging for 'latest' if it's not a pre-release and branch is main
+            if [[ "${CIRCLE_TAG}" != *"rc"* && "${CIRCLE_BRANCH}" == "main" ]]; then
+              docker tag pedromspeixoto/grpc-mtls:${CIRCLE_TAG} pedromspeixoto/grpc-mtls:latest
+            fi
+            # Tagging for v0.0.0 if it's not a pre-release
+            if [[ "${CIRCLE_TAG}" != *"rc"* ]]; then
+              version=$(echo ${CIRCLE_TAG} | cut -d "-" -f1)
+              docker tag pedromspeixoto/grpc-mtls:${CIRCLE_TAG} pedromspeixoto/grpc-mtls:${version}
+            fi
+      - run:
+          name: Login to Docker Hub
+          command: |
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      - run:
+          name: Push Docker images
+          command: |
+            docker push pedromspeixoto/grpc-mtls:${CIRCLE_TAG}
+            # Pushing 'latest' image if it's not a pre-release and branch is main
+            if [[ "${CIRCLE_TAG}" != *"rc"* && "${CIRCLE_BRANCH}" == "main" ]]; then
+              docker push pedromspeixoto/grpc-mtls:latest
+            fi
+            # Pushing v0.0.0 image if it's not a pre-release
+            if [[ "${CIRCLE_TAG}" != *"rc"* ]]; then
+              version=$(echo ${CIRCLE_TAG} | cut -d "-" -f1)
+              docker push pedromspeixoto/grpc-mtls:${version}
+            fi
+
+workflows:
+  tag_workflow:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$/
