@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package yourservice;
+
+option go_package = "pb/";
+
+// The greeting service definition.
+service YourService {
+  // Sends a greeting
+  rpc YourMethod (YourRequest) returns (YourResponse) {}
+}
+
+// The request message containing the user's name.
+message YourRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings.
+message YourResponse {
+  string message = 1;
+}
