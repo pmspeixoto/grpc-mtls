@@ -3,25 +3,21 @@
 
 on:
   pull_request:
-    # Sequence of patterns matched against refs/heads
+    types: [opened, reopened, synchronize]
     branches:
       - 'release/**'
       - 'hotfix/**'
 
-  permissions:
-    contents: read
+permissions:
+  contents: read
 
-  jobs:
-    create_release_draft:
-      runs-on: ubuntu-latest
-      permissions:
-        contents: write
-        pull-requests: read
-      steps:
-        - uses: release-drafter/release-drafter@v5
-          id: release-drafter
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            config-name: release-drafter.yml
-            publish: false
+jobs:
+  update_release_draft:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
