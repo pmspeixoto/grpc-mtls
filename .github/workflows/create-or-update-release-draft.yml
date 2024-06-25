@@ -13,6 +13,9 @@ jobs:
   update-release-draft:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Extract version
         id: extract_version
         run: |
@@ -28,9 +31,24 @@ jobs:
             exit 0
           fi
 
-      - name: Display extracted version
+      - name: Get short commit hash
+        id: get_commit_hash
+        run: |
+          short_commit_hash=$(git rev-parse --short HEAD)
+          echo "::set-output name=short_commit_hash::$short_commit_hash"
+
+      - name: Create tag
+        id: create_tag
+        run: |
+          tag="${{ steps.extract_version.outputs.version }}-${{ steps.get_commit_hash.outputs.short_commit_hash }}"
+          echo "Creating tag: $tag"
+          git tag $tag
+          git push origin $tag
+
+      - name: Display extracted version and commit hash
         run: |
           echo "Extracted version: ${{ steps.extract_version.outputs.version }}"
+          echo "Short commit hash: ${{ steps.get_commit_hash.outputs.short_commit_hash }}"
 
       - uses: release-drafter/release-drafter@v5
         name: Update or create release draft
