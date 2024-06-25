@@ -1,9 +1,7 @@
 name: Create release draft
 
 on:
-  # run only on PRs merged to release/* or hotfix/* branches
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - 'release/*'
       - 'hotfix/*'
@@ -24,7 +22,7 @@ jobs:
             echo "::set-output name=version::$version"
           else
             echo "Branch name does not match the expected pattern"
-            exit 1
+            exit 0
           fi
 
       - name: Display extracted version
