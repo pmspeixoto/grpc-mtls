@@ -11,24 +11,23 @@ permissions:
 
 jobs:
   update-release-draft:
+    if: |
+        (github.event_name == 'workflow_dispatch') || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Extract version
+      - name: Extract version and validate semver
         id: extract_version
         run: |
-          branch_name=${GITHUB_REF##*/}
-          echo "Branch name: $branch_name"
-          
-          # Extract version using regex
-          if [[ $branch_name =~ ^(hotfix|release)/v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            version="v${BASH_REMATCH[2]}.${BASH_REMATCH[3]}.${BASH_REMATCH[4]}"
-            echo "Version: $version"
+          version=${GITHUB_REF##*/}
+
+          if [[ $version =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "Version $version is valid."
             echo "::set-output name=version::$version"
           else
-            echo "Branch name does not match the expected pattern"
+            echo "Invalid version format: $version"
             exit 1
           fi
 
