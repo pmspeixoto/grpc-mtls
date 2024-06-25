@@ -1,15 +1,15 @@
 on:
   # run only on PRs merged to release/* or hotfix/* branches
   pull_request:
-    types: [merged, closed]
+    types: [closed]
     branches:
       - 'release/*'
       - 'hotfix/*'
 
 jobs:
- update-release-draft:
-   runs-on: ubuntu-latest
-   steps:
+  update-release-draft:
+    runs-on: ubuntu-latest
+    steps:
       - name: Extract version
         id: extract_version
         run: |
@@ -28,10 +28,9 @@ jobs:
       - name: Display extracted version
         run: echo "Extracted version: ${{ steps.extract_version.outputs.version }}"
 
-
       - uses: release-drafter/release-drafter@v5
         name: Update or create release draft
         with:
-          version: ${{ steps.extract_version.outputs.version }}"
+          version: ${{ steps.extract_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
