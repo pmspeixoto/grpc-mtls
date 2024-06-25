@@ -1,3 +1,5 @@
+name: Create release draft
+
 on:
   # run only on PRs merged to release/* or hotfix/* branches
   pull_request:
