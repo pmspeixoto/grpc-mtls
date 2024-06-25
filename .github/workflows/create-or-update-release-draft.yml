@@ -20,6 +20,7 @@ jobs:
         id: extract_version
         run: |
           branch_name=${GITHUB_REF##*/}
+          echo "Branch name: $branch_name"
           
           # Extract version using regex
           if [[ $branch_name =~ ^(hotfix|release)/v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -28,7 +29,7 @@ jobs:
             echo "::set-output name=version::$version"
           else
             echo "Branch name does not match the expected pattern"
-            exit 0
+            exit 1
           fi
 
       - name: Get short commit hash
