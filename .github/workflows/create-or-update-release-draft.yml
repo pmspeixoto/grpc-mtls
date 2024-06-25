@@ -26,7 +26,8 @@ jobs:
           fi
 
       - name: Display extracted version
-        run: echo "Extracted version: ${{ steps.extract_version.outputs.version }}"
+        run: |
+          echo "Extracted version: ${{ steps.extract_version.outputs.version }}"
 
       - uses: release-drafter/release-drafter@v5
         name: Update or create release draft
